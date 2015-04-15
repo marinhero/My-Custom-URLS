@@ -3,17 +3,19 @@
 ** Author: Marin Alcaraz
 ** Mail   <marin.alcaraz@gmail.com>
 ** Started on  Fri Apr 10 17:39:34 2015 Marin Alcaraz
-** Last update Wed Apr 15 12:13:13 2015 Marin Alcaraz
+** Last update Wed Apr 15 13:30:23 2015 Marin Alcaraz
  */
 
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"path"
 	"regexp"
+	"strings"
 	"text/template"
 	"time"
 
@@ -32,7 +34,7 @@ Nice to have:
 */
 
 //Config variables
-var hostURL = "http://127.0.0.1:8080/"
+var redirectPrefixURL = "http://127.0.0.1:8080/r/"
 var dbUsername = "marin"
 var dbPass = "devel"
 var dbName = "shorturl"
@@ -66,7 +68,7 @@ func generateShortURL(original string) string {
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
-	return hostURL + string(b)
+	return redirectPrefixURL + string(b)
 }
 
 func validURL(url string) bool {
@@ -80,6 +82,43 @@ func checkDuplicate(url string) string {
 	return shortItem.ShortURL
 }
 
+func createShortURL(index *Page, r *http.Request) {
+	shortItem := customurls{}
+	r.ParseForm()
+	shortItem.OldURL = r.FormValue("oldURL")
+	if validURL(shortItem.OldURL) {
+		s := generateShortURL(shortItem.OldURL)
+		shortItem.ShortURL = s
+
+		//Prevent duplicates
+		exists := checkDuplicate(shortItem.OldURL)
+		if exists == "" {
+			db.NewRecord(shortItem)
+			db.Create(&shortItem)
+			index.NewURL = s
+		} else {
+			index.NewURL = exists
+		}
+	} else {
+		index.Messages = "Invalid URL provided"
+	}
+}
+
+func myRedirectHandler(w http.ResponseWriter, r *http.Request) {
+	parsedURI := strings.Split(r.URL.String(), "/")
+	myURLPattern := parsedURI[2]
+	shortItem := customurls{}
+	db.Where("short_url = ?", redirectPrefixURL+myURLPattern).Find(&shortItem)
+	if shortItem.ShortURL != "" {
+		fmt.Println("[+] Visits:", shortItem.Visits)
+		shortItem.Visits = shortItem.Visits + 1
+		db.Save(&shortItem)
+		http.Redirect(w, r, shortItem.OldURL, http.StatusFound)
+		return
+	}
+	http.NotFound(w, r)
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	lp := path.Join("templates", "index.html")
 	index := Page{Title: "URLShortener - By Marin Alcaraz"}
@@ -90,25 +129,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		shortItem := customurls{}
-		r.ParseForm()
-		shortItem.OldURL = r.FormValue("oldURL")
-		if validURL(shortItem.OldURL) {
-			s := generateShortURL(shortItem.OldURL)
-			shortItem.ShortURL = s
-
-			//Prevent duplicates
-			exists := checkDuplicate(shortItem.OldURL)
-			if exists == "" {
-				db.NewRecord(shortItem)
-				db.Create(&shortItem)
-				index.NewURL = s
-			} else {
-				index.NewURL = exists
-			}
-		} else {
-			index.Messages = "Invalid URL provided"
-		}
+		createShortURL(&index, r)
 	}
 	t.Execute(w, index)
 }
@@ -117,6 +138,7 @@ func initWebServer() {
 	fs := http.FileServer(http.Dir("static"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.HandleFunc("/r/", myRedirectHandler)
 	http.HandleFunc("/", indexHandler)
 
 	log.Println("Listening...")
@@ -141,6 +163,7 @@ func connectToDB() gorm.DB {
 	db.DB().SetMaxOpenConns(100)
 
 	// Drop table
+	//TEST PURPOSES
 	db.DropTable(&customurls{})
 	db.CreateTable((&customurls{}))
 
