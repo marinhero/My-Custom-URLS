@@ -1,0 +1,84 @@
+/*
+ * Style.css for URLShortener
+ */
+
+body {
+    font-family: 'Raleway', sans-serif;
+}
+
+.header {
+    margin: 0 0 50px 0;
+}
+
+.wrapper {
+    width: 960px;
+    margin: 0 auto;
+
+}
+
+.center {
+    text-align: center;
+
+}
+
+.content-style {
+    width: 400px;
+    text-align: center;
+    margin: 0 auto;
+
+}
+
+.output {
+    height: 50px;
+    text-align: center;
+    margin: 0 0 30px 0;
+
+}
+
+.error {
+    color: #ff0000;
+
+}
+
+.banner {
+    color: #000;
+    text-decoration: none;
+
+}
+
+.output > h2 {
+    margin: 0;
+
+}
+
+.output > a {
+    display: block;
+    margin: 10px;
+
+}
+
+.form-item {
+    font-family: 'Raleway', sans-serif;
+
+}
+
+input[type="text"].form-item {
+    width: 100%;
+    height: 25px;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+
+}
+
+.form-button {
+    width: 30%;
+    height: 40px;
+    margin: 10px 0;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #c1c1c1;
+    font-size: 14px;
+
+}
+

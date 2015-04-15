@@ -1,0 +1,10 @@
+/*
+ * style.css for URLShortener
+ */
+
+.wrapper {
+    background-color: #123445;
+    width: 960px;
+    margin: 0 auto;
+
+}

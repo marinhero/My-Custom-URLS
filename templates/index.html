@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="static/stylesheets/style.css" />
+    <link href='http://fonts.googleapis.com/css?family=Raleway:300' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <h1 class="center"><a class="banner" href="/">My custom URLs</a></h1>
+        </div><!--end of header-->
+        <div class="content-style">
+            <div class="output">
+                {{if .Messages}}
+                    <h2 class="error">{{.Messages}}</h2>
+                {{end}}
+                {{if .NewURL}}
+                    <h2>Your short url:</h2>
+                    <a href="{{.NewURL}}">{{.NewURL}}</a>
+                {{end}}
+            </div><!--end of output-->
+            <form method="POST" action="/" class="form-style">
+                <input class="form-item" id="oldURL" name="oldURL" type="text" />
+                <input class="form-item form-button" type="submit" value="short" />
+            </form><!--end of form-->
+        </div><!-- end of content-style-->
+    </div><!--end of wrapper-->
+</body>
+</html>
