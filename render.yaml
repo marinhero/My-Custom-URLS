@@ -1,0 +1,41 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+# Deploy with: https://dashboard.render.com/blueprints
+
+services:
+  # API Server
+  - type: web
+    name: shortme-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DB_ENGINE
+        value: postgres
+      - key: DB_HOST
+        fromDatabase:
+          name: shortme-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: shortme-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: shortme-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: shortme-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: shortme-db
+          property: database
+      - key: REDIRECT_PREFIX_URL
+        sync: false  # Set this after deployment to your Render URL + /r/
+
+databases:
+  - name: shortme-db
+    plan: free
+    databaseName: shorturl
+    user: shortme

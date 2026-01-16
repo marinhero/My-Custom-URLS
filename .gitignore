@@ -1,1 +1,26 @@
+# Swap files
 .*.*.sw*
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+shortme
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE folders
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
